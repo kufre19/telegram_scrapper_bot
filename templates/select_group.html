@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telegram Scraper - Select Group</title>
+</head>
+<body>
+    <h1>Select a Group to Scrape</h1>
+    <form method="post" action="/scrape">
+        <label for="group_number">Select Group:</label>
+        <select name="group_number">
+            {% for group in groups %}
+            <option value="{{ loop.index }}">{{ group }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Scrape Group</button>
+    </form>
+    <a href="/">Back to Home</a>
+
+</body>
+</html>
