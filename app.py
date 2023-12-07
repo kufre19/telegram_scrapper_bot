@@ -78,6 +78,9 @@ def select_group():
 
         # Handle the output of scraper.py here
         # For example, you might want to show a confirmation message or the results of scraping
+        if "Members scraped successfully" in output:
+            return render_template('results.html', result="false")
+        
         return render_template('results.html', result=output)
 
     # Retrieve and display available groups
