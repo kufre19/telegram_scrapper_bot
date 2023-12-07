@@ -3,8 +3,19 @@ import subprocess
 import threading
 import subprocess
 import json
+from flask import Flask, render_template, request, session, redirect, url_for
+from flask_session import Session  # You might need to install this with 'pip install Flask-Session'
 
 app = Flask(__name__)
+
+
+
+app.secret_key = 'your_secret_key'  # Set a secret key for session management
+# Configure and initialize the session
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 
 # Step 1: Start the Process
 @app.route('/', methods=['GET', 'POST'])
@@ -15,51 +26,97 @@ def index():
 
 
 
+from flask import jsonify
+
+
+
 @app.route('/start_scraper', methods=['GET'])
 def start_scraper():
-    # Assuming your scraper script outputs JSON data
-    result = subprocess.check_output(['python3', 'scraper.py'])
-    groups = json.loads(result)  # Adjust this line based on actual scraper output
-    return render_template('select_group.html', groups=groups)
+    process = subprocess.Popen(['python3', 'scraper.py','-l'], 
+                               stdout=subprocess.PIPE, 
+                               text=True)
+
+    output, _ = process.communicate()
+    
+    # return output
+    
+    if "Enter the code" in output:
+        # Handle the scenario where the script is asking for an access code
+        # Redirect to a different route or display a form for entering the access code
+        return render_template('enter_code.html')
+
+    # return output
+    try:
+        groups = json.loads(output)
+        return render_template('select_group.html', groups=groups)
+    except json.JSONDecodeError:
+        return f"Failed to decode JSON: {output}"
+
+    return "Unexpected error occurred"
+
+
+
 
 
 @app.route('/select_group', methods=['GET', 'POST'])
 def select_group():
     if request.method == 'POST':
-        selected_group = request.form['selected_group']
-        # Add logic to handle the selected group
-        return redirect(url_for('another_route'))  # Redirect as needed
-    # If GET request, just show the group selection page
-    return render_template('select_group.html')
+        selected_group_index = request.form['group_number']
+        
+        input_data = f"{selected_group_index}\n"
+        
+        # Run scraper.py with the selected group index
+        process = subprocess.Popen(['python3', 'scraper.py'], 
+                                    text=True,
+                                    stdin=subprocess.PIPE, 
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                   
+                                   )
+
+        output, _ = process.communicate(input=input_data)
+
+        # Handle the output of scraper.py here
+        # For example, you might want to show a confirmation message or the results of scraping
+        return render_template('results.html', result=output)
+
+    # Retrieve and display available groups
+    process = subprocess.Popen(['python3', 'scraper.py'], 
+                               stdout=subprocess.PIPE, 
+                               text=True)
+
+    output, _ = process.communicate()
+    try:
+        groups = json.loads(output)
+        return render_template('select_group.html', groups=groups)
+    except json.JSONDecodeError:
+        return f"Failed to decode JSON: {output}"
+
+    return "Unexpected error occurred"
 
 
 
-@app.route('/verify_code', methods=['POST'])
-def verify_code():
-    code = request.form['code']
-    # Logic to send the code to the script
-    # ...
 
-    # Fetch the list of groups (assuming the script outputs this information)
-    groups = get_groups()  # Define this function to capture group list
-    return render_template('select_group.html', groups=groups)
+# @app.route('/update_credentials', methods=['GET', 'POST'])
+# def update_credentials():
+#     if request.method == 'POST':
+#         # Store credentials in session
+#         session['api_id'] = request.form['api_id']
+#         session['api_hash'] = request.form['api_hash']
+#         session['phone'] = request.form['phone']
 
-# Utility function to get groups (placeholder)
-def get_groups():
-    # Logic to get groups from the script
-    return ["Group 1", "Group 2", "Group 3"]  # Example group list
+#         # Run the setup script with initial credentials
+#         process = subprocess.Popen(['python3', 'setup.py', '-c'],
+#                                    stdin=subprocess.PIPE, 
+#                                    stdout=subprocess.PIPE,
+#                                    stderr=subprocess.PIPE, 
+#                                    text=True)
 
-# Step 4: Final Step - Scraping
-@app.route('/scrape', methods=['POST'])
-def scrape():
-    group_number = request.form['group_number']
-    # Send this group number to the scraper script
-    # ...
+#         # Send the credentials to the script
+#         credentials_input = f"{session['api_id']}\n{session['api_hash']}\n{session['phone']}\n"
 
-    # Get scraper results
-    results = get_scraper_results()  # Define this function to capture scraper output
-    return render_template('results.html', results=results)
-
+#         return output  # or render a template with the output
+#     return render_template('update_credentials.html')
 
 
 @app.route('/update_credentials', methods=['GET', 'POST'])
@@ -83,24 +140,73 @@ def update_credentials():
 
         if error:
             return f'Error: {error}'
-        return f'Output: {output}'
+        return redirect(url_for('/'))
+
+    
     return render_template('update_credentials.html')
 
 
-@app.route('/enter_passcode', methods=['GET', 'POST'])
+@app.route('/enter_passcode', methods=['POST'])
 def enter_passcode():
-    if request.method == 'POST':
-        passcode = request.form['passcode']
-        # Logic to use passcode to establish connection
-        # This could involve calling a function from setup.py or replicating its logic
-        return 'Connection established successfully!'
-    return render_template('enter_passcode.html')
+    passcode = request.form['passcode']
+
+    process = subprocess.Popen(['python3', 'scraper.py','-l','-s'], 
+                               stdin=subprocess.PIPE, 
+                               stdout=subprocess.PIPE, 
+                               stderr=subprocess.PIPE, 
+                               text=True)
+
+    # Send the passcode to scraper.py
+    output, _ = process.communicate(input=passcode)
+
+    try:
+        # Try to parse the output as JSON and extract groups
+        groups = json.loads(output)
+        return render_template('select_group.html', groups=groups)
+    except json.JSONDecodeError:
+        # If JSON decoding fails, return the raw output
+        return f"Failed to decode JSON: {output}"
+
+    return "Unexpected error occurred"
+
+@app.route('/add_members', methods=['GET'])
+def add_members():
+    process = subprocess.Popen(['python3', 'scraper.py', '-l'], 
+                               stdout=subprocess.PIPE, 
+                               text=True)
+
+    output, _ = process.communicate()
+
+    try:
+        groups = json.loads(output)
+        return render_template('add_members.html', groups=groups)
+    except json.JSONDecodeError:
+        return f"Failed to decode JSON: {output}"
+
+    return "Unexpected error occurred"
+
+@app.route('/perform_add_members', methods=['POST'])
+def perform_add_members():
+    selected_group_id = request.form['selected_group']
+    input_data = f"{selected_group_id}\n"
+    
+    
+    # Here you will need to call add2group.py with the selected group ID
+    # Ensure add2group.py is capable of handling this ID as an argument
+    process = subprocess.Popen(['python3', 'add2group.py', "members.csv"], 
+                               stdout=subprocess.PIPE,
+                               stdin=subprocess.PIPE, 
+                               text=True)
+
+    output, _ = process.communicate(input=input_data)
+
+    # Handle the output from add2group.py here
+    return render_template('add_members_result.html', result=output)
 
 
-# Utility function to get scraper results (placeholder)
-def get_scraper_results():
-    # Logic to get results from the scraper script
-    return "Scraping results here..."
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

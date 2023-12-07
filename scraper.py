@@ -30,20 +30,36 @@ try:
     phone = cpass['cred']['phone']
     client = TelegramClient(phone, api_id, api_hash)
 except KeyError:
-    os.system('clear')
-    banner()
+    
+    # banner()
     print(re+"[!] run python3 setup.py first !!\n")
     sys.exit(1)
 
 client.connect()
+# if not client.is_user_authorized():
+#     client.send_code_request(phone)
+    
+#     # banner()
+#     client.sign_in(phone, input(gr+'[+] Enter the code: '+re))
+
 if not client.is_user_authorized():
+    
     client.send_code_request(phone)
-    os.system('clear')
-    banner()
-    client.sign_in(phone, input(gr+'[+] Enter the code: '+re))
+    
+    if len(sys.argv) > 2 and sys.argv[2] in ['-s', '--signin']:
+            # print("Enter the code2")
+            # banner()
+            code = input()
+            client.sign_in(phone, code)
+    else:
+        print("Enter the code")
+        sys.exit(1)
+
  
-os.system('clear')
-banner()
+
+ 
+
+# banner()
 chats = []
 last_date = None
 chunk_size = 200
@@ -65,23 +81,69 @@ for chat in chats:
     except:
         continue
  
-print(gr+'[+] Choose a group to scrape members :'+re)
+# print(gr+'[+] Choose a group to scrape members :'+re)
 i=0
-for g in groups:
-    print(gr+'['+cy+str(i)+gr+']'+cy+' - '+ g.title)
-    i+=1
+# for g in groups:
+#     print(gr+'['+cy+str(i)+gr+']'+cy+' - '+ g.title)
+#     i+=1
+
+# print("ok")
+
+def test_groups():
+    with open("groups.csv","w",encoding='UTF-8') as f:
+        writer = csv.writer(f,delimiter=",",lineterminator="\n")
+        writer.writerow(['title'])
+        for g in groups:
+            if g.title:
+                title= g.title
+            else:
+                title= ""
+            writer.writerow([title])
+    
  
-print('')
-g_index = input(gr+"[+] Enter a Number : "+re)
+
+# if any ([sys.argv[1] == '--listing', sys.argv[1] == '-l']):
+#     groups_data = []
+#     for group in groups:
+#             # Extract necessary attributes from each group
+#             group_info = {
+#                 'id': group.id,
+#                 'title': getattr(group, 'title', None),
+#                 'access_hash': getattr(group, 'access_hash', None)
+#                 # You can add more attributes here if needed
+#             }
+#             groups_data.append(group_info)
+
+#     print(json.dumps(groups_data))
+#     sys.exit(1)
+
+# Check if any command-line arguments are passed
+if len(sys.argv) > 1 and sys.argv[1] in ['--listing', '-l']:
+    groups_data = []
+    for group in groups:
+        group_info = {
+            'id': group.id,
+            'title': getattr(group, 'title', "Null"),
+            'access_hash': getattr(group, 'access_hash', "Null")
+        }
+        groups_data.append(group_info)
+
+    print(json.dumps(groups_data))
+    sys.exit(0)
+
+g_index = input()
 target_group=groups[int(g_index)]
+
+
  
-print(gr+'[+] Fetching Members...')
+# print(gr+'[+] Fetching Members...')
 time.sleep(1)
 all_participants = []
 all_participants = client.get_participants(target_group, aggressive=True)
  
-print(gr+'[+] Saving In file...')
+# print(gr+'[+] Saving In file...')
 time.sleep(1)
+
 
 
 
@@ -104,4 +166,6 @@ with open("members.csv","w",encoding='UTF-8') as f:
         name= (first_name + ' ' + last_name).strip()
         writer.writerow([username,user.id,user.access_hash,name,target_group.title, target_group.id])
 print(gr+'[+] Members scraped successfully.')
+
+
 

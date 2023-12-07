@@ -1,22 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Enter Passcode</title>
+    <title>Add Members Result</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Enter Your Passcode</h1>
-        <form method="post" action="/enter_passcode">
-            <div class="form-group">
-                <input type="text" name="passcode" class="form-control" placeholder="Enter your passcode" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-
-        <a href="/" class="btn btn-link mt-3">Back to Home</a>
+        <h1 class="mb-4">Add Members Result</h1>
+        <p>{{ result }}</p>
     </div>
+
+    <a href="/" class="btn btn-link">Back to Home</a>
 
     <!-- Bootstrap JS and its dependencies -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

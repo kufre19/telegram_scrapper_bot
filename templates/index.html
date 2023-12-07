@@ -2,17 +2,34 @@
 <html>
 <head>
     <title>Telegram Scraper</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Welcome to the Telegram Scraper</h1>
-    <form method="post" action="/start_scraping">
-        <button type="submit">Start Scraping Process</button>
-    </form>
-    <form method="get" action="/update_credentials">
-        <button type="submit">Change Account Credentials</button>
-    </form>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Welcome to the Telegram Scraper</h1>
+        <div class="row">
+            <div class="col-sm-12 mb-3">
+                <form method="get" action="/start_scraper">
+                    <button type="submit" class="btn btn-primary btn-block">Start Scraping Process</button>
+                </form>
+            </div>
+            <div class="col-sm-12">
+                <form method="get" action="/update_credentials">
+                    <button type="submit" class="btn btn-secondary btn-block">Change Account Credentials</button>
+                </form>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <a href="/" class="btn btn-link">Back to Home</a>
+            </div>
+        </div>
+    </div>
 
-    <a href="/">Back to Home</a>
-
+    <!-- Bootstrap JS and its dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

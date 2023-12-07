@@ -33,7 +33,7 @@ try:
     phone = cpass['cred']['phone']
     client = TelegramClient(phone, api_id, api_hash)
 except KeyError:
-    os.system('clear')
+    # os.system('clear')
     banner()
     print(re+"[!] run python3 setup.py first !!\n")
     sys.exit(1)
@@ -41,11 +41,11 @@ except KeyError:
 client.connect()
 if not client.is_user_authorized():
     client.send_code_request(phone)
-    os.system('clear')
+    # os.system('clear')
     banner()
     client.sign_in(phone, input(gr+'[+] Enter the code: '+re))
  
-os.system('clear')
+# os.system('clear')
 banner()
 input_file = sys.argv[1]
 users = []
@@ -86,38 +86,40 @@ for group in groups:
     print(gr+'['+cy+str(i)+gr+']'+cy+' - '+group.title)
     i+=1
 
-print(gr+'[+] Choose a group to add members')
-g_index = input(gr+"[+] Enter a Number : "+re)
+# print(gr+'[+] Choose a group to add members')
+g_index = input()
 target_group=groups[int(g_index)]
  
 target_group_entity = InputPeerChannel(target_group.id,target_group.access_hash)
  
-print(gr+"[1] add member by user ID\n[2] add member by username ")
-mode = int(input(gr+"Input : "+re)) 
+
+mode = 1
 n = 0
- 
+
 for user in users:
     n += 1
     if n % 50 == 0:
-	    time.sleep(1)
-	    try:
-	        print ("Adding {}".format(user['id']))
-	        if mode == 1:
-	            if user['username'] == "":
-	                continue
-	            user_to_add = client.get_input_entity(user['username'])
-	        elif mode == 2:
-	            user_to_add = InputPeerUser(user['id'], user['access_hash'])
-	        else:
-	            sys.exit(re+"[!] Invalid Mode Selected. Please Try Again.")
-	        client(InviteToChannelRequest(target_group_entity,[user_to_add]))
-	        print(gr+"[+] Waiting for 5-10 Seconds...")
-	        time.sleep(random.randrange(10, 20))
-	    except PeerFloodError:
-	        print(re+"[!] Getting Flood Error from telegram. \n[!] Script is stopping now. \n[!] Please try again after some time.")
-	    except UserPrivacyRestrictedError:
-	        print(re+"[!] The user's privacy settings do not allow you to do this. Skipping.")
-	    except:
-	        traceback.print_exc()
-	        print(re+"[!] Unexpected Error")
-	        continue
+        time.sleep(1)
+        try:
+            # print("Adding {}".format(user['id']))
+            if mode == 1:
+                if user['username'] == "":
+                    continue
+                user_to_add = client.get_input_entity(user['username'])
+            elif mode == 2:
+                user_to_add = InputPeerUser(user['id'], user['access_hash'])
+            else:
+                sys.exit(re + "[!] Invalid Mode Selected. Please Try Again.")
+            client(InviteToChannelRequest(target_group_entity, [user_to_add]))
+            # print(gr + "[+] Waiting for 5-10 Seconds...")
+            time.sleep(random.randrange(10, 20))
+        except PeerFloodError:
+            # print(re + "[!] Getting Flood Error from telegram. \n[!] Script is stopping now. \n[!] Please try again after some time.")
+            pass
+        except UserPrivacyRestrictedError:
+            # print(re + "[!] The user's privacy settings do not allow you to do this. Skipping.")
+            pass
+        except:
+            traceback.print_exc()
+            # print(re + "[!] Unexpected Error")
+            continue
