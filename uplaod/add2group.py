@@ -2,7 +2,7 @@
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetDialogsRequest
 from telethon.tl.types import InputPeerEmpty, InputPeerChannel, InputPeerUser
-from telethon.errors.rpcerrorlist import PeerFloodError, UserPrivacyRestrictedError,FloodWaitError
+from telethon.errors.rpcerrorlist import PeerFloodError, UserPrivacyRestrictedError
 from telethon.tl.functions.channels import InviteToChannelRequest
 import configparser
 import os, sys
@@ -96,45 +96,37 @@ target_group_entity = InputPeerChannel(target_group.id,target_group.access_hash)
 # mode = int(input()) 
 n = 0
 mode = 2
-msg = ''
-stop_runing = False
-
 
  
 for user in users:
     n += 1
-    if stop_runing:
-        print(msg)
-        sys.exit(0)
-        
     if n % 50 == 0:
-        time.sleep(5)
-        try:
-            # print ("Adding {}".format(user['id']))
-            if mode == 1:
-                if user['username'] == "":
-                    continue
-                user_to_add = client.get_input_entity(user['username'])
-            elif mode == 2:
-                user_to_add = InputPeerUser(user['id'], user['access_hash'])
-            else:
-                sys.exit(re + "[!] Invalid Mode Selected. Please Try Again.")
-            client(InviteToChannelRequest(target_group_entity, [user_to_add]))
-            # print(gr + "[+] Waiting for 5-10 Seconds...")
-            time.sleep(random.randrange(50, 100))
-        except PeerFloodError:
-            # print(re + "[!] peer flood error.")
-            print("")
+	    time.sleep(5)
+	    try:
+	        # print ("Adding {}".format(user['id']))
+	        if mode == 1:
+	            if user['username'] == "":
+	                continue
+	            user_to_add = client.get_input_entity(user['username'])
+	        elif mode == 2:
+	            user_to_add = InputPeerUser(user['id'], user['access_hash'])
+	        else:
+	            sys.exit(re+"[!] Invalid Mode Selected. Please Try Again.")
+	        client(InviteToChannelRequest(target_group_entity,[user_to_add]))
+	        # print(gr+"[+] Waiting for 5-10 Seconds...")
+	        time.sleep(random.randrange(50, 100))
+	    except PeerFloodError:
+	        # print(re+"[!] peer flood error.")
+         
+	        print("")
             # continue
-        except UserPrivacyRestrictedError:
-            # print(re + "[!] The user's privacy settings do not allow you to do this. Skipping.")
+	    except UserPrivacyRestrictedError:
+	        # print(re+"[!] The user's privacy settings do not allow you to do this. Skipping.")
             # continue
-            print("")
-        except FloodWaitError:
-            msg = "this account has flood wait error, wait for at least 24 hours to use it again"
-            stop_runing = True
-            print(msg)
-        except:
-            # traceback.print_exc()
-            # print(re + "[!] Unexpected Error")
-            continue
+	        print("")
+            
+         
+	    except:
+	        # traceback.print_exc()
+	        # print(re+"[!] Unexpected Error")
+	        continue

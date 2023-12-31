@@ -14,7 +14,7 @@ import configparser
 import csv
 import time
 import json
-from datetime import date, datetime,timedelta
+from datetime import date, datetime
 
 
 re="\033[1;31m"
@@ -39,7 +39,7 @@ try:
     api_hash = cpass['cred']['hash']
     phone = cpass['cred']['phone']
     client = TelegramClient(phone, api_id, api_hash)
-except KeyError: 
+except KeyError:
     os.system('clear')
     banner()
     print(re+"[!] run python3 setup.py first !!\n")
@@ -145,12 +145,8 @@ with open("members.csv", "w", encoding='UTF-8') as f:
         if not admin_only:
             try:
                 lastDate = user.status.was_online
-                # time_difference = datetime.now() - lastDate
-                # if time_difference > timedelta(days=15):
-                #     accept = False
-        
                 num_months = (datetime.now().year - lastDate.year) * 12 + (datetime.now().month - lastDate.month)
-                if num_months > 0.07:
+                if num_months > 0.5:
                     accept = False
             except:
                 continue

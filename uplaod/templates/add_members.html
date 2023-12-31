@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Telegram Scraper - Select Group</title>
+    <title>Add Members to Group</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Select a Group to Scrape</h1>
-        <form method="post" action="/select_group">
+        <h1 class="mb-4">Select a Group to Add Members</h1>
+        <form method="post" action="/perform_add_members">
             <div class="form-group">
-                <label for="group_number">Select Group:</label>
-                <select name="group_number" class="form-control">
+                <label for="selected_group">Select Group:</label>
+                <select name="selected_group" class="form-control">
                     {% for group in groups %}
                     <option value="{{ loop.index - 1 }}">{{ group }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="scrapeAdmins" name="scrape_admins">
-                <label class="form-check-label" for="scrapeAdmins">Scrap only admins</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Scrape Group</button>
+            <button type="submit" class="btn btn-primary">Add To Group</button>
         </form>
-        <a href="/" class="btn btn-link mt-3">Back to Home</a>
     </div>
 
     <!-- Bootstrap JS and its dependencies -->

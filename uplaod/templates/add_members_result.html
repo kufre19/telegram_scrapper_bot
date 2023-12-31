@@ -1,25 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Telegram Scraper - Results</title>
+    <title>Add Members Result</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Scraping Results</h1>
-
-        {% if result %}
-            <!-- <p>{{ result }}</p> -->
-            <form action="/add_members" method="get" class="mb-3">
-                <button type="submit" class="btn btn-primary">Add Members to Group</button>
-            </form>
-        {% else %}
-            <p>Could not fetch users.</p>
-        {% endif %}
-
-        <a href="/" class="btn btn-link">Back to Home</a>
+        <h1 class="mb-4">Add Members Result</h1>
+        <p>{{ result }}</p>
     </div>
+
+    <a href="/" class="btn btn-link">Back to Home</a>
 
     <!-- Bootstrap JS and its dependencies -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

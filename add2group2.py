@@ -41,12 +41,12 @@ except KeyError:
 client.connect()
 if not client.is_user_authorized():
     client.send_code_request(phone)
-    # os.system('clear')
-    # banner()
+    os.system('clear')
+    banner()
     client.sign_in(phone, input())
  
-# os.system('clear')
-# banner()
+os.system('clear')
+banner()
 input_file = sys.argv[1]
 users = []
 with open(input_file, encoding='UTF-8') as f:
@@ -81,28 +81,27 @@ for chat in chats:
     except:
         continue
  
-# i=0
-# for group in groups:
-#     print(gr+'['+cy+str(i)+gr+']'+cy+' - '+group.title)
-#     i+=1
+i=0
+for group in groups:
+    print(gr+'['+cy+str(i)+gr+']'+cy+' - '+group.title)
+    i+=1
 
-# print(gr+'[+] Choose a group to add members')
+print(gr+'[+] Choose a group to add members')
 g_index = input()
 target_group=groups[int(g_index)]
  
 target_group_entity = InputPeerChannel(target_group.id,target_group.access_hash)
  
-# print(gr+"[1] add member by user ID\n[2] add member by username ")
-# mode = int(input()) 
+print(gr+"[1] add member by user ID\n[2] add member by username ")
+mode = int(input()) 
 n = 0
 mode = 2
-msg = ''
 stop_runing = False
-
 
  
 for user in users:
     n += 1
+    msg = ''
     if stop_runing:
         print(msg)
         sys.exit(0)
@@ -110,7 +109,7 @@ for user in users:
     if n % 50 == 0:
         time.sleep(5)
         try:
-            # print ("Adding {}".format(user['id']))
+            print("Adding {}".format(user['id']))
             if mode == 1:
                 if user['username'] == "":
                     continue
@@ -120,21 +119,18 @@ for user in users:
             else:
                 sys.exit(re + "[!] Invalid Mode Selected. Please Try Again.")
             client(InviteToChannelRequest(target_group_entity, [user_to_add]))
-            # print(gr + "[+] Waiting for 5-10 Seconds...")
-            time.sleep(random.randrange(50, 100))
+            print(gr + "[+] Waiting for 7-10 Seconds...")
+            time.sleep(random.randrange(10, 20))
         except PeerFloodError:
-            # print(re + "[!] peer flood error.")
-            print("")
-            # continue
+            print(re + "[!] Getting Flood Error from telegram. \n[!] Script is stopping now. \n[!] Please try again after some time.")
         except UserPrivacyRestrictedError:
-            # print(re + "[!] The user's privacy settings do not allow you to do this. Skipping.")
-            # continue
-            print("")
+            print(re + "[!] The user's privacy settings do not allow you to do this. Skipping.")
         except FloodWaitError:
             msg = "this account has flood wait error, wait for at least 24 hours to use it again"
             stop_runing = True
             print(msg)
+            
         except:
-            # traceback.print_exc()
-            # print(re + "[!] Unexpected Error")
+            traceback.print_exc()
+            print(re + "[!] Unexpected Error")
             continue
