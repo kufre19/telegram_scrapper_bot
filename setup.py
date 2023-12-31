@@ -13,6 +13,7 @@ cy="\033[1;36m"
 
 import os, sys
 import time
+import json
 
 def banner():
 	os.system('clear')
@@ -48,20 +49,45 @@ def requirements():
 
 
 def config_setup():
-	import configparser
-	banner()
-	cpass = configparser.RawConfigParser()
-	cpass.add_section('cred')
-	xid = input(gr+"[+] enter api ID : "+re)
-	cpass.set('cred', 'id', xid)
-	xhash = input(gr+"[+] enter hash ID : "+re)
-	cpass.set('cred', 'hash', xhash)
-	xphone = input(gr+"[+] enter phone number : "+re)
-	cpass.set('cred', 'phone', xphone)
-	setup = open('config.data', 'w')
-	cpass.write(setup)
-	setup.close()
-	print(gr+"[+] setup complete !")
+    banner()
+
+    # Read existing credentials from the JSON file
+    try:
+        with open('credentials.json', 'r') as f:
+            credentials = json.load(f)
+    except FileNotFoundError:
+        credentials = {}
+        
+    xid = input(gr + "[+] Enter API ID (or type 'done' to finish): " + re)
+        
+    xhash = input(gr + "[+] Enter Hash ID: " + re)
+    xphone = input(gr + "[+] Enter Phone Number: " + re)
+
+	# Update existing credentials or add new ones
+    credentials[xphone] = {'id': xid, 'hash': xhash, 'phone': xphone}
+       
+
+    with open('credentials.json', 'w') as f:
+        json.dump(credentials, f)
+
+    print(gr + "[+] Setup complete!")
+
+    
+# def config_setup():
+	# import configparser
+	# banner()
+	# cpass = configparser.RawConfigParser()
+	# cpass.add_section('cred')
+	# xid = input(gr+"[+] enter api ID : "+re)
+	# cpass.set('cred', 'id', xid)
+	# xhash = input(gr+"[+] enter hash ID : "+re)
+	# cpass.set('cred', 'hash', xhash)
+	# xphone = input(gr+"[+] enter phone number : "+re)
+	# cpass.set('cred', 'phone', xphone)
+	# setup = open('config.data', 'w')
+	# cpass.write(setup)
+	# setup.close()
+	# print(gr+"[+] setup complete !")
 
 def merge_csv():
 	import pandas as pd

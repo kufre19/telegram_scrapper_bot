@@ -34,10 +34,37 @@ youtube.com/channel/UCnknCgg_3pVXS27ThLpw3xQ
 cpass = configparser.RawConfigParser()
 cpass.read('config.data')
 
-try:
-    api_id = cpass['cred']['id']
-    api_hash = cpass['cred']['hash']
-    phone = cpass['cred']['phone']
+phone_number = sys.argv[1]
+
+
+def get_credentials(phone_number):
+    # Read credentials from the JSON file
+    try:
+        with open('credentials.json', 'r') as f:
+            credentials = json.load(f)
+    except FileNotFoundError:
+        print("Credentials file not found.")
+        sys.exit(1)
+
+    # Retrieve credentials for the provided phone number
+    user_credentials = credentials.get(phone_number, None)
+
+    if user_credentials is None:
+        print(f"Credentials not found for phone number: {phone_number}")
+        sys.exit(1)
+
+    return user_credentials
+
+
+
+try: 
+    # api_id = cpass['cred']['id']
+    # api_hash = cpass['cred']['hash']
+    # phone = cpass['cred']['phone']
+    creds = get_credentials(phone_number)
+    api_id = creds['id']
+    api_hash = creds['hash']
+    phone = creds['phone']
     client = TelegramClient(phone, api_id, api_hash)
 except KeyError: 
     os.system('clear')
@@ -50,7 +77,7 @@ if not client.is_user_authorized():
     
     client.send_code_request(phone)
     
-    if len(sys.argv) > 2 and sys.argv[2] in ['-s', '--signin']:
+    if len(sys.argv) > 3 and sys.argv[3] in ['-s', '--signin']:
             # print("Enter the code2")
             # banner()
             code = input()
@@ -90,7 +117,7 @@ for chat in chats:
  
 # print('')
 
-if len(sys.argv) > 1 and sys.argv[1] in ['--listing', '-l']:
+if len(sys.argv) > 2 and sys.argv[2] in ['--listing', '-l']:
     groups_data = []
     for group in groups:
         group_info = {
@@ -105,7 +132,7 @@ if len(sys.argv) > 1 and sys.argv[1] in ['--listing', '-l']:
     
     
 admin_only = False
-if len(sys.argv) > 1 and sys.argv[1] in ['--admins', '-a']:
+if len(sys.argv) > 2 and sys.argv[2] in ['--admins', '-a']:
     admin_only = True
 
     

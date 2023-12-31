@@ -32,7 +32,9 @@ from flask import jsonify
 
 @app.route('/start_scraper', methods=['GET'])
 def start_scraper():
-    process = subprocess.Popen(['python3', 'scraper.py','-l'], 
+    # Retrieve the selected phone number from the session
+    selected_phone = session.get('selected_phone', '')
+    process = subprocess.Popen(['python3', 'scraper.py',selected_phone,'-l'], 
                                stdout=subprocess.PIPE, 
                                text=True)
 
@@ -60,6 +62,8 @@ def start_scraper():
 
 @app.route('/select_group', methods=['GET', 'POST'])
 def select_group():
+    selected_phone = session.get('selected_phone', '')
+    
     if request.method == 'POST':
         selected_group_index = request.form['group_number']
         scrape_admins = '-a' if 'scrape_admins' in request.form else ''
@@ -67,7 +71,7 @@ def select_group():
         input_data = f"{selected_group_index}\n"
         
         # Run scraper.py with the selected group index
-        process = subprocess.Popen(['python3', 'scraper.py',scrape_admins], 
+        process = subprocess.Popen(['python3', 'scraper.py',selected_phone,scrape_admins], 
                                     text=True,
                                     stdin=subprocess.PIPE, 
                                     stdout=subprocess.PIPE,
@@ -85,7 +89,7 @@ def select_group():
         return render_template('results.html', result=output)
 
     # Retrieve and display available groups
-    process = subprocess.Popen(['python3', 'scraper.py'], 
+    process = subprocess.Popen(['python3', 'scraper.py',selected_phone], 
                                stdout=subprocess.PIPE, 
                                text=True)
 
@@ -153,8 +157,9 @@ def update_credentials():
 @app.route('/enter_passcode', methods=['POST'])
 def enter_passcode():
     passcode = request.form['passcode']
+    selected_phone = session.get('selected_phone', '')
 
-    process = subprocess.Popen(['python3', 'scraper.py','-l','-s'], 
+    process = subprocess.Popen(['python3','scraper.py',selected_phone,'-l','-s'], 
                                stdin=subprocess.PIPE, 
                                stdout=subprocess.PIPE, 
                                stderr=subprocess.PIPE, 
@@ -175,7 +180,9 @@ def enter_passcode():
 
 @app.route('/add_members', methods=['GET'])
 def add_members():
-    process = subprocess.Popen(['python3', 'scraper.py', '-l'], 
+    selected_phone = session.get('selected_phone', '')
+    
+    process = subprocess.Popen(['python3', 'scraper.py',selected_phone,'-l'], 
                                stdout=subprocess.PIPE, 
                                text=True)
 
@@ -193,12 +200,14 @@ def add_members():
 def perform_add_members():
     selected_group_id = request.form['selected_group']
     input_data = f"{selected_group_id}\n"
+    selected_phone = session.get('selected_phone', '')
+    
     
     
     
     # Here you will need to call add2group.py with the selected group ID
     # Ensure add2group.py is capable of handling this ID as an argument
-    process = subprocess.Popen(['python3', 'add2group.py', "members.csv"], 
+    process = subprocess.Popen(['python3', 'add2group.py',selected_phone,"members.csv"], 
                                stdout=subprocess.PIPE,
                                stdin=subprocess.PIPE, 
                                text=True)
@@ -210,7 +219,35 @@ def perform_add_members():
 
 
 
+@app.route('/select-account')
+def select_account():
+    # Read credentials from the JSON file
+    with open('credentials.json', 'r') as f:
+        credentials = json.load(f)
 
+    # Extract phone numbers for the dropdown menu
+    phone_numbers = list(credentials.keys())
+
+    # Render the HTML page with the dropdown menu
+    return render_template('select-account.html', phone_numbers=phone_numbers)
+
+
+
+@app.route('/save-selected-account', methods=['POST'])
+def selected():
+    selected_phone = request.form['phone']
+
+    # Now you can use the selected phone number to fetch the corresponding credentials
+    with open('credentials.json', 'r') as f:
+        credentials = json.load(f)
+
+    selected_credentials = credentials.get(selected_phone, {})
+    
+
+    # Store the selected phone number in the session
+    session['selected_phone'] = selected_phone
+
+    return redirect(url_for('start_scraper'))
 
 
 if __name__ == '__main__':
